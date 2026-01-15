@@ -4,74 +4,97 @@ FastAPI backend for transcribing audio meetings and generating summaries using W
 
 ## Architecture
 
-The backend follows a layered architecture:
-
+**Layered architecture:**
 - **API Layer** (`app/api/`): Routes and endpoints
 - **Business Layer** (`app/business/`): Business logic orchestration
 - **Service Layer** (`app/services/`): External API integrations (Whisper, Groq, Word export)
 - **Model Layer** (`app/models/`): Pydantic schemas for data validation
 
-## Setup
+## Quick Start
 
-1. **Create virtual environment:**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-2. **Install dependencies:**
+### 1. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Configure environment variables:**
+### 2. Configure Environment Variables
+Create `.env` file in the `backend/` directory:
 ```bash
-cp .env.example .env
-# Edit .env and add your API keys
+OPENAI_API_KEY=your_openai_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
-4. **Run the server:**
+### 3. Run the Server
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`
+API available at: `http://localhost:8000`
 
 ## API Documentation
 
-Once the server is running, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+Interactive docs: `http://localhost:8000/docs`
 
-## Endpoints
+### Main Endpoints
 
-### POST `/api/transcribe`
-Upload an audio file (mp3/wav) for transcription and analysis.
+**POST /api/transcribe**
+- Upload audio file (mp3/wav)
+- Returns: transcription, summary, participants, decisions, action_items
 
-**Request:** multipart/form-data with `file` field
+**POST /api/export**
+- Export results to Word document
+- Accepts: JSON body with transcription data
+- Returns: .docx file
 
-**Response:**
-```json
-{
-  "transcription": "...",
-  "summary": "...",
-  "participants": ["..."],
-  "decisions": ["..."],
-  "action_items": [...]
-}
+**GET /health**
+- Health check endpoint
+
+## Testing
+
+### Run Unit Tests
+```bash
+pytest
 ```
 
-### GET `/api/export`
-Export transcription data to Word document (query parameters).
+### Test with Real Audio File
+```bash
+python test_api.py path/to/audio.mp3
+```
 
-### POST `/api/export`
-Export transcription data to Word document (JSON body).
+Or use Swagger UI at `http://localhost:8000/docs`
 
-### GET `/health`
-Health check endpoint.
+## Features
 
-## Environment Variables
+- 🎙️ Audio transcription (Whisper API)
+- 📝 Meeting summarization (Groq API)
+- 👥 Participant identification
+- ✅ Decisions & action items extraction
+- 📄 Word document export
+- 📊 Logging of AI responses
 
-- `OPENAI_API_KEY`: Required for Whisper API transcription
-- `GROQ_API_KEY`: Required for Groq API analysis
+## Logs
 
+AI service logs are saved in `logs/`:
+- `ai_whisper_YYYYMMDD.log` - Whisper transcription logs
+- `ai_groq_YYYYMMDD.log` - Groq analysis logs
+
+## Requirements
+
+- Python 3.8+
+- OpenAI API key (for Whisper)
+- Groq API key (for LLM analysis)
+
+## Project Structure
+
+```
+backend/
+├── app/
+│   ├── api/          # API routes
+│   ├── business/     # Business logic
+│   ├── services/     # External services
+│   ├── models/       # Pydantic schemas
+│   └── utils/        # Utilities (logging)
+├── tests/            # Unit tests
+├── logs/             # AI service logs
+└── test_api.py       # Integration test script
+```

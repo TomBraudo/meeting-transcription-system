@@ -1,7 +1,7 @@
 """Business logic layer for transcription processing"""
 import os
 import tempfile
-from typing import Dict
+
 from fastapi import UploadFile
 
 from app.services.whisper_service import WhisperService
