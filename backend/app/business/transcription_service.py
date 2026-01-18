@@ -1,6 +1,7 @@
 """Business logic layer for transcription processing"""
 import os
 import tempfile
+from typing import Optional
 
 from fastapi import UploadFile
 
@@ -16,12 +17,13 @@ class TranscriptionBusinessService:
         self.whisper_service = WhisperService()
         self.groq_service = GroqService()
     
-    async def process_audio_file(self, file: UploadFile) -> TranscriptionResponse:
+    async def process_audio_file(self, file: UploadFile, language: Optional[str] = None) -> TranscriptionResponse:
         """
         Process audio file: transcribe and analyze
         
         Args:
             file: Uploaded audio file
+            language: Optional language code (e.g., 'he' for Hebrew, 'en' for English)
         
         Returns:
             TranscriptionResponse with all extracted information
@@ -46,11 +48,11 @@ class TranscriptionBusinessService:
             temp_file.flush()
             temp_file.close()
             
-            # Transcribe audio
-            transcription = await self.whisper_service.transcribe_audio(temp_file.name)
+            # Transcribe audio with language parameter
+            transcription = await self.whisper_service.transcribe_audio(temp_file.name, language=language)
             
-            # Analyze transcription
-            analysis = await self.groq_service.analyze_transcription(transcription)
+            # Analyze transcription with language awareness
+            analysis = await self.groq_service.analyze_transcription(transcription, language=language)
             
             # Convert action items to ActionItem objects
             action_items = [

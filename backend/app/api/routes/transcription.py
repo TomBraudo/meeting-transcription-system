@@ -1,6 +1,7 @@
 """API routes for transcription endpoints"""
 import json
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from typing import Optional
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Query
 from fastapi.responses import StreamingResponse
 
 from app.business.transcription_service import TranscriptionBusinessService
@@ -23,15 +24,19 @@ def get_word_export_service() -> WordExportService:
 @router.post("/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(
     file: UploadFile = File(...),
+    language: Optional[str] = Query(None, description="Language code (e.g., 'he' for Hebrew, 'en' for English). If None, auto-detect."),
     transcription_service: TranscriptionBusinessService = Depends(get_transcription_service)
 ):
     """
     Upload and process an audio file (mp3/wav)
     
+    Supports multiple languages including Hebrew ('he'), English ('en'), Arabic ('ar'), etc.
+    If language is not specified, Whisper will auto-detect the language.
+    
     Returns transcription, summary, participants, decisions, and action items
     """
     try:
-        result = await transcription_service.process_audio_file(file)
+        result = await transcription_service.process_audio_file(file, language=language)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

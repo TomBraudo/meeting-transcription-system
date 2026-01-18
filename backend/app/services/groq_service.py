@@ -3,11 +3,12 @@ import os
 import json
 import re
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 
 from groq import Groq
 
 from app.utils.logger import get_ai_logger
+from app.prompts.loader import prompt_loader
 
 
 class GroqService:
@@ -23,39 +24,23 @@ class GroqService:
         self.temperature = 0.3  # Lower temperature for more deterministic structured output
         self.logger = get_ai_logger("groq")
     
-    def _get_system_prompt(self) -> str:
+    def _get_system_prompt(self, language: Optional[str] = None) -> str:
         """Get the system prompt for meeting analysis"""
-        return """You are an expert meeting analyst. Analyze the following meeting transcription and extract key information.
-
-Provide the following in JSON format:
-
-1. **summary**: A concise 2-3 paragraph overview of the meeting, highlighting main topics discussed.
-
-2. **participants**: A list of all unique speakers/participants identified. If speaker identification is not possible, use ["Speaker 1", "Speaker 2", etc.].
-
-3. **decisions**: An array of strings describing all decisions, conclusions, or agreements reached.
-
-4. **action_items**: An array of objects with:
-   - "task": description of the task
-   - "assignee": person responsible (or "Unassigned")
-   - "deadline": deadline mentioned (or null)
-
-Return ONLY valid JSON in this exact format:
-{
-  "summary": "...",
-  "participants": ["..."],
-  "decisions": ["..."],
-  "action_items": [
-    {"task": "...", "assignee": "...", "deadline": "..."}
-  ]
-}"""
+        # Load base prompt from file
+        base_prompt = prompt_loader.load("meeting_analysis")
+        
+        # Add language-specific instruction prefix if needed
+        lang_instruction = prompt_loader.get_language_instruction(language)
+        
+        return f"{lang_instruction}{base_prompt}"
     
-    async def analyze_transcription(self, transcription: str) -> Dict:
+    async def analyze_transcription(self, transcription: str, language: Optional[str] = None) -> Dict:
         """
         Analyze transcription and extract meeting insights
         
         Args:
             transcription: The transcribed meeting text
+            language: Optional language code for language-aware analysis
         
         Returns:
             Dictionary with summary, participants, decisions, and action_items
@@ -63,6 +48,7 @@ Return ONLY valid JSON in this exact format:
         try:
             self.logger.info("Starting Groq analysis of transcription")
             self.logger.info(f"Model: {self.model}, Temperature: {self.temperature}")
+            self.logger.info(f"Language: {language or 'auto-detect'}")
             self.logger.info(f"Transcription length: {len(transcription)} characters")
             
             user_prompt = f"TRANSCRIPTION:\n{transcription}\n\nAnalyze this transcription and provide the requested information in JSON format."
@@ -72,7 +58,7 @@ Return ONLY valid JSON in this exact format:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": self._get_system_prompt()},
+                        {"role": "system", "content": self._get_system_prompt(language)},
                         {"role": "user", "content": user_prompt}
                     ],
                     temperature=self.temperature,
@@ -84,7 +70,7 @@ Return ONLY valid JSON in this exact format:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": self._get_system_prompt()},
+                        {"role": "system", "content": self._get_system_prompt(language)},
                         {"role": "user", "content": user_prompt}
                     ],
                     temperature=self.temperature,
