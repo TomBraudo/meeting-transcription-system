@@ -13,33 +13,47 @@ AI-powered full-stack application for transcribing audio meetings and generating
 
 ## Quick Start
 
-### Backend
+### 1. Backend Setup
 
 ```bash
+cd backend
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Configure environment
-cd backend
-cp .env.example .env
-# Add your OPENAI_API_KEY and GROQ_API_KEY to .env
+# Create .env file with your API keys:
+# OPENAI_API_KEY=your_openai_key
+# GROQ_API_KEY=your_groq_key
 
 # Run server
 uvicorn app.main:app --reload
 ```
 
-Backend: `http://localhost:8000`
-API Docs: `http://localhost:8000/docs`
+Backend will run at `http://localhost:8000`  
+API Documentation: `http://localhost:8000/docs`
 
-### Frontend
+### 2. Frontend Setup
 
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
+
+# Start development server
 npm start
 ```
 
-Frontend: `http://localhost:3000`
+Frontend will run at `http://localhost:3000`
+
+### Usage
+
+1. Open `http://localhost:3000` in your browser
+2. Upload an audio file (MP3 or WAV)
+3. Select language (English or Hebrew)
+4. Click "Start Transcription"
+5. View results and export to Word if needed
 
 ## Testing
 
@@ -63,24 +77,46 @@ GROQ_API_KEY=your_key
 ## Project Structure
 
 ```
-├── backend/          # FastAPI backend
-│   ├── app/         # Application code
-│   │   ├── api/     # API routes
-│   │   ├── business/ # Business logic
-│   │   ├── services/ # External services
-│   │   └── models/  # Data schemas
-│   ├── tests/       # Unit tests
-│   └── logs/        # AI service logs
-├── frontend/        # React frontend (TBD)
-└── requirements.txt # Python dependencies
+├── backend/              # FastAPI backend
+│   ├── app/
+│   │   ├── api/          # API routes
+│   │   ├── business/     # Business logic
+│   │   ├── services/     # External services (Whisper, Groq, Word)
+│   │   ├── models/       # Pydantic schemas
+│   │   ├── prompts/      # AI prompts
+│   │   └── utils/        # Utilities (logging)
+│   ├── tests/            # Unit tests (42 tests)
+│   ├── logs/             # AI service logs
+│   └── requirements.txt
+├── frontend/             # React frontend
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── services/     # API client
+│   │   ├── App.jsx       # Main app
+│   │   └── index.js
+│   └── package.json
+└── PROJECT_PLAN.md
 ```
 
 ## Technology Stack
 
-- **Backend:** FastAPI, Python 3.8+
-- **AI:** OpenAI Whisper, Groq (Llama 3.3)
-- **Export:** python-docx
-- **Testing:** pytest
+### Backend
+- **Framework:** FastAPI (Python 3.8+)
+- **AI Services:** OpenAI Whisper API, Groq API (Llama 3.3)
+- **Export:** python-docx (Word documents)
+- **Testing:** pytest, pytest-asyncio
+- **Logging:** Structured logging for AI interactions
+
+### Frontend
+- **Framework:** React 18
+- **HTTP Client:** Axios
+- **File Upload:** react-dropzone
+- **Styling:** Tailwind CSS
+- **UI:** Modern, responsive design with drag-and-drop
+
+### Language Support
+- English
+- Hebrew (with RTL support in Word export)
 
 ## License
 
