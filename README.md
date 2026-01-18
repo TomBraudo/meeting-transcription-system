@@ -1,19 +1,39 @@
 # Meeting Transcription & Summarization System
 
-AI-powered full-stack application for transcribing audio meetings and generating summaries.
+AI-powered full-stack application that transcribes audio meetings and generates summaries, participant lists, decisions, and action items.
 
 ## Features
 
-- 🎙️ Audio transcription (Whisper API)
-- 📝 Meeting summarization (Groq LLM)
+- 🎙️ Audio transcription (MP3/WAV)
+- 📝 AI-powered meeting summary
 - 👥 Participant identification
 - ✅ Decisions & action items extraction
-- 📄 Word document export
-- 📊 Logging of AI responses
+- 📄 Word document export with RTL support
+- 🌐 Language support: Auto-detect, English, Hebrew
+
+## Architecture
+
+```
+React Frontend (Port 3000)
+    ↓ REST API
+FastAPI Backend (Port 8000)
+    ├─→ Whisper API (Transcription)
+    └─→ Groq API (Analysis)
+```
+
+**Backend Layers:**
+- API → Business → Service → Model
+- Clean separation of concerns
+- Dependency injection pattern
 
 ## Quick Start
 
-### 1. Backend Setup
+### 1. Get API Keys
+
+- **OpenAI API Key**: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **Groq API Key**: [console.groq.com/keys](https://console.groq.com/keys)
+
+### 2. Backend Setup
 
 ```bash
 cd backend
@@ -21,19 +41,18 @@ cd backend
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure environment
-# Create .env file with your API keys:
-# OPENAI_API_KEY=your_openai_key
-# GROQ_API_KEY=your_groq_key
+# Create .env file with your API keys
+echo "OPENAI_API_KEY=your_openai_key" > .env
+echo "GROQ_API_KEY=your_groq_key" >> .env
 
 # Run server
 uvicorn app.main:app --reload
 ```
 
-Backend will run at `http://localhost:8000`  
-API Documentation: `http://localhost:8000/docs`
+Backend: `http://localhost:8000`  
+API Docs: `http://localhost:8000/docs`
 
-### 2. Frontend Setup
+### 3. Frontend Setup
 
 ```bash
 cd frontend
@@ -41,83 +60,80 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start development server
+# Start dev server
 npm start
 ```
 
-Frontend will run at `http://localhost:3000`
+Frontend: `http://localhost:3000`
 
-### Usage
+### 4. Usage
 
-1. Open `http://localhost:3000` in your browser
-2. Upload an audio file (MP3 or WAV)
-3. Select language (English or Hebrew)
+1. Open `http://localhost:3000`
+2. Select language (Auto-detect, English, or Hebrew)
+3. Upload audio file (drag & drop or click)
 4. Click "Start Transcription"
-5. View results and export to Word if needed
+5. View results and export to Word
 
-## Testing
+## Technology Stack
 
-```bash
-# Unit tests
-cd backend
-pytest
+**Backend:** FastAPI, Python 3.8+, OpenAI Whisper API, Groq API (Llama 3.3), python-docx  
+**Frontend:** React 18, Axios, react-dropzone, Tailwind CSS  
+**Testing:** pytest, pytest-asyncio (42 unit tests)
 
-# Test with real audio
-python test_api.py path/to/audio.mp3
+## API Endpoints
+
+### POST /api/transcribe
+Upload audio file and get analysis.
+
+**Parameters:**
+- `file` - Audio file (MP3/WAV)
+- `language` (optional) - 'en', 'he', or null for auto-detect
+
+**Response:**
+```json
+{
+  "transcription": "...",
+  "summary": "...",
+  "participants": [...],
+  "decisions": [...],
+  "action_items": [...]
+}
 ```
 
-## Environment Variables
+### POST /api/export
+Export to Word document.
 
-Create `backend/.env`:
-```
-OPENAI_API_KEY=your_key
-GROQ_API_KEY=your_key
-```
+### GET /health
+Health check endpoint.
 
 ## Project Structure
 
 ```
-├── backend/              # FastAPI backend
+Assignment/
+├── backend/
 │   ├── app/
-│   │   ├── api/          # API routes
-│   │   ├── business/     # Business logic
-│   │   ├── services/     # External services (Whisper, Groq, Word)
-│   │   ├── models/       # Pydantic schemas
-│   │   ├── prompts/      # AI prompts
-│   │   └── utils/        # Utilities (logging)
-│   ├── tests/            # Unit tests (42 tests)
-│   ├── logs/             # AI service logs
+│   │   ├── api/         # API routes
+│   │   ├── business/    # Business logic
+│   │   ├── services/    # External APIs
+│   │   ├── models/      # Pydantic schemas
+│   │   └── prompts/     # AI prompts
+│   ├── tests/           # 42 unit tests
 │   └── requirements.txt
-├── frontend/             # React frontend
+├── frontend/
 │   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── services/     # API client
-│   │   ├── App.jsx       # Main app
-│   │   └── index.js
+│   │   ├── components/  # React components
+│   │   ├── services/    # API client
+│   │   └── App.jsx
 │   └── package.json
-└── PROJECT_PLAN.md
+└── README.md
 ```
 
-## Technology Stack
+## Troubleshooting
 
-### Backend
-- **Framework:** FastAPI (Python 3.8+)
-- **AI Services:** OpenAI Whisper API, Groq API (Llama 3.3)
-- **Export:** python-docx (Word documents)
-- **Testing:** pytest, pytest-asyncio
-- **Logging:** Structured logging for AI interactions
+**Backend won't start:** Check `.env` file exists with valid API keys  
+**Frontend won't start:** Ensure backend is running, check Node.js 16+  
+**CORS errors:** Start backend before frontend
 
-### Frontend
-- **Framework:** React 18
-- **HTTP Client:** Axios
-- **File Upload:** react-dropzone
-- **Styling:** Tailwind CSS
-- **UI:** Modern, responsive design with drag-and-drop
+---
 
-### Language Support
-- English
-- Hebrew (with RTL support in Word export)
-
-## License
-
-MIT
+**Built with FastAPI, React, Whisper API, and Groq AI**
