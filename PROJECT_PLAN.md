@@ -132,7 +132,7 @@ GET /api/export
 - Error handling for API failures
 
 ### Phase 3: Groq Integration (1.5 hours)
-- Integrate Groq API (Llama 3.1 or Mixtral model)
+- Integrate Groq API
 - Design and implement system prompt (see Section 6)
 - Parse JSON responses (summary, participants, decisions, action items)
 - Error handling and retry logic
@@ -245,12 +245,6 @@ Return ONLY valid JSON in this exact format:
 - **Frontend**: `cd frontend && npm start` (runs on port 3000)
 - **Backend**: `cd backend && uvicorn app.main:app --reload` (runs on port 8000)
 - Frontend configured to call backend at `http://localhost:8000`
-
-### Production (Optional)
-- Frontend: Vercel/Netlify
-- Backend: Render/Railway/Fly.io
-- File storage: Temporary (in-memory or local filesystem)
-
 ---
 
 ## 11. Documentation Deliverables
@@ -293,21 +287,3 @@ Return ONLY valid JSON in this exact format:
 ✅ Clear frontend/backend separation  
 
 ---
-
-## 14. Next Steps
-
-1. Set up GitHub repository
-2. Initialize backend (FastAPI) and frontend (React) separately
-3. Get API keys (OpenAI Whisper, Groq)
-4. Create `.env.example` files for both projects
-5. Implement backend endpoints
-6. Integrate Whisper API
-7. Integrate Groq API with system prompt
-8. Build frontend components
-9. Implement Word export
-10. Test end-to-end
-11. Write documentation (.PROCESS.md with time tracking)
-
----
-
-**Ready for implementation!**
